@@ -30,6 +30,8 @@ impl Ord for MerkleNode {
     }
 }
 
+const CR: u8 = 0x0d;
+
 impl MerkleNode {
     /// Creates a new root node
     pub fn root(root: &str, hash_names: bool, algorithm: Algorithm) -> Result<Self> {
@@ -89,9 +91,10 @@ impl MerkleNode {
                 None => algorithm.compute_hash(b""),
             }
         } else {
-            let file_bytes = fs::read(&path.absolute)
+            let mut file_bytes = fs::read(&path.absolute)
                 .with_context(|| format!("Unable to read file: {}", path.absolute))?;
 
+            file_bytes.retain(|f| f != &CR);
             algorithm.compute_hash(&file_bytes)
         };
 
